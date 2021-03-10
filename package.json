@@ -1,6 +1,6 @@
 {
   "name": "react-roomiebot-ros",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "ros lib component",
   "main": "src/components/RoomiebotRos.js",
   "scripts": {
