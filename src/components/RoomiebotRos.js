@@ -15,7 +15,6 @@ class RoomiebotRos {
         this.running = false;
         this.#onSystemInit = undefined;
         this.#loopForever = undefined;
-
     }
 
     #servicesCheck = ()=>{
@@ -26,10 +25,13 @@ class RoomiebotRos {
                 this.services[key].topic = new ROSLIB.Service({
                     ros: this.ros,
                     name: this.services[key].name,
-                    service: this.services[key].service,
+                    serviceType: this.services[key].service,
                 });
                 this.services[key].registered = true;
                 //console.log('topic:', this.topics[key].topic);
+            }
+            else{
+                //console.log('Services already registered');
             }    
         } );
     }
@@ -129,7 +131,10 @@ class RoomiebotRos {
             
         } );
     }
-    
+    spinOnce = () =>{
+        this.#topicsCheck();
+        this.#servicesCheck();
+    }
     startRun = () => {
         console.log("Start run of roomiebotRos");
         this.running = true;
@@ -150,9 +155,10 @@ class RoomiebotRos {
             registered: false,
             type: "publisher",
         }
+        this.#topicsCheck();
     }
 
-    newSubcriber = (name, messageType, callback) => {
+    newSubscriber = (name, messageType, callback) => {
         this.topics[name] = {
             name : name,
             messageType: messageType,
@@ -168,10 +174,12 @@ class RoomiebotRos {
         this.services[name] = {
             name : name,
             service: service,
+            topic: null,
             registered: false,
             type: "service",
             subscribed: false,            
         }
+        this.#servicesCheck();
     }
 
     tryUnsubscribe = (topic) => {
@@ -189,10 +197,39 @@ class RoomiebotRos {
 
     tryPublish = (topicName, msg) => {
         console.log('tryPublish');
-        if( this.topics[topicName] && this.topics[topicName].registered ){
-            this.topics[topicName].topic.publish(msg);
-            return true;
+        let publish_attempt= false;
+        let counter = 0;
+        while(publish_attempt == false && counter < 5){
+            if( this.topics[topicName] && this.topics[topicName].registered ){
+                this.topics[topicName].topic.publish(msg);
+                console.log('succcesfully published ',topicName)
+                return true;
+            }          
+          this.spinOnce();
+          counter ++;
         }
+        console.log('could not publish ',topicName)
+        return false;
+    }
+
+    tryCallService = (serviceName,request, func, err_msg) => {
+        console.log('tryService', serviceName);
+        let publish_attempt= false;
+        let counter = 0;
+        while(publish_attempt == false && counter < 5){
+            if( this.services[serviceName] && this.services[serviceName].registered ){
+                this.services[serviceName].topic.callService(
+                    request, 
+                    (response)=>{console.log('inisdeserv',response);func(response)}, 
+                    (error)=>{ console.log(err_msg)}
+                    );
+                    console.log('succcesfull service call ',serviceName)
+                return true;
+            }          
+          this.spinOnce();
+          counter ++;
+        }            
+        console.log('could not call Service ',serviceName)
         return false;
     }
 
