@@ -1,9 +1,8 @@
+"use strict"
 let ROSLIB = require('roslib');
 
 class RoomiebotRos {
-    #onSystemInit
-    #loopForever
-
+    
     constructor( name = 'generic', ros = null){
         console.log("ROS object created");
         this.rosStatus = false;
@@ -13,11 +12,11 @@ class RoomiebotRos {
         this.topics = {};
         this.services = {};
         this.running = false;
-        this.#onSystemInit = undefined;
-        this.#loopForever = undefined;
+        this.onSystemInit = undefined;
+        this.loopForever = undefined;
     }
 
-    #servicesCheck = ()=>{
+    servicesCheck  (){
         Object.entries(this.services).map( ([key, value]) => {
             if(this.services[key].registered === false){
                 console.log("Registering service:", this.services[key].name);
@@ -36,7 +35,7 @@ class RoomiebotRos {
         } );
     }
 
-    #topicsCheck = () => {
+    topicsCheck ()  {
         Object.entries(this.topics).map( ([key, value]) => {
             if(this.topics[key].registered === false){
                 console.log("Registering topic:", this.topics[key].name);
@@ -65,7 +64,7 @@ class RoomiebotRos {
     }
     
 
-    #run = () => {
+    run () {
         //console.log("roomiebotRos: loop checking");
         if(this.ros === undefined){
           console.log('ROS still undefined');
@@ -90,10 +89,10 @@ class RoomiebotRos {
             //this.subscribe();
             this.registeredTopics = true;
             
-            if (this.#onSystemInit){
-                this.#onSystemInit();
+            if (this.onSystemInit){
+                this.onSystemInit();
             }
-            //this.#onSystemInit();
+            //this.onSystemInit();
         }
         if(!this.rosStatus && this.registeredTopics){
             console.log("roomiebotRos: ROS connection LOSS, unsubscribe to topics");
@@ -102,24 +101,24 @@ class RoomiebotRos {
         }
         ////////  ROS LOOP  //////////////////////////
         if(this.rosStatus && this.registeredTopics && this.running){
-          //this.#loopForever();
+          //this.loopForever();
           //console.log('loop forever');
-          this.#topicsCheck();
-          this.#servicesCheck();
+          this.topicsCheck();
+          this.servicesCheck();
 
-          if(this.#loopForever){
-            this.#loopForever();
+          if(this.loopForever){
+            this.loopForever();
           }
         }
         ///////////////////////////////////
         if (this.running){
           setTimeout(() => {
-            this.#run();
+            this.run();
           }, 1000);
         }
     }
 
-    #unsubcribeAll = () => {
+    unsubcribeAll () {
         Object.entries(this.topics).map( ([key, value]) => {
 
             if( this.topics[key].type === "subscriber" &&
@@ -131,23 +130,23 @@ class RoomiebotRos {
             
         } );
     }
-    spinOnce = () =>{
-        this.#topicsCheck();
-        this.#servicesCheck();
+    spinOnce  () {
+        this.topicsCheck();
+        this.servicesCheck();
     }
-    startRun = () => {
+    startRun () {
         console.log("Start run of roomiebotRos");
         this.running = true;
-        this.#run();
+        this.run();
     }
 
-    stopRun = () => {
+    stopRun () {
         console.log("Stop run of roomiebotRos");
         this.running = false;
-        this.#unsubcribeAll();        
+        this.unsubcribeAll();        
     }
     
-    newPublisher = (name, messageType) => {
+    newPublisher (name, messageType){
         this.topics[name] = {
             name : name,
             messageType: messageType,
@@ -155,10 +154,10 @@ class RoomiebotRos {
             registered: false,
             type: "publisher",
         }
-        this.#topicsCheck();
+        this.topicsCheck();
     }
 
-    newSubscriber = (name, messageType, callback) => {
+    newSubscriber (name, messageType, callback) {
         this.topics[name] = {
             name : name,
             messageType: messageType,
@@ -170,7 +169,7 @@ class RoomiebotRos {
         }
     }
 
-    newService = ( name, service) =>{
+    newService ( name, service) {
         this.services[name] = {
             name : name,
             service: service,
@@ -179,10 +178,10 @@ class RoomiebotRos {
             type: "service",
             subscribed: false,            
         }
-        this.#servicesCheck();
+        this.servicesCheck();
     }
 
-    tryUnsubscribe = (topic) => {
+    tryUnsubscribe (topic) {
         try{
           topic.unsubscribe();
           return true;
@@ -195,7 +194,7 @@ class RoomiebotRos {
 
     
 
-    tryPublish = (topicName, msg) => {
+    tryPublish (topicName, msg) {
         console.log('tryPublish');
         let publish_attempt= false;
         let counter = 0;
@@ -212,7 +211,7 @@ class RoomiebotRos {
         return false;
     }
 
-    tryCallService = (serviceName,request, func, err_msg) => {
+    tryCallService (serviceName,request, func, err_msg) {
         console.log('tryService', serviceName);
         let publish_attempt= false;
         let counter = 0;
@@ -233,16 +232,16 @@ class RoomiebotRos {
         return false;
     }
 
-    setOnSystemInit = (onSystemInit) => {
-        this.#onSystemInit = onSystemInit;
+    setOnSystemInit(onSystemInit) {
+        this.onSystemInit = onSystemInit;
     }
 
-    setLoopForever = (loopForever) => {
-        this.#loopForever = loopForever;
+    setLoopForever (loopForever) {
+        this.loopForever = loopForever;
     }
 
     
 
 }
 
-export default RoomiebotRos;
+module.exports= RoomiebotRos;

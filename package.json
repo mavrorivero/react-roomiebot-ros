@@ -1,33 +1,37 @@
 {
   "name": "react-roomiebot-ros",
-  "version": "1.1.4",
-  "description": "ros lib component",
-  "main": "src/components/RoomiebotRos.js",
+
+  "version": "1.1.8",
+  "description": "react roomiebot ros",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "styleguidist server"
+    "build": "babel src -d dist"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mavrorivero/react-roomiebot-ros.git"
   },
   "keywords": [
-    "react-roomiebot-ros"
+    "react",
+    "ros",
+    "roomiebot",
+    "react-ros"
   ],
-  "author": "MauroRivero",
+  "author": "mavrorivero <mauro.rivero@roomie-it.org>",
   "license": "MIT",
-  "devDependencies": {
-    "@emotion/core": "^11.0.0",
-    "@emotion/styled": "^11.1.5",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1",
-    "react-styleguidist": "^11.1.5",
-    "roslib": "^1.1.0",
-    "webpack": "^5.24.3"
-  },
+
   "bugs": {
     "url": "https://github.com/mavrorivero/react-roomiebot-ros/issues"
   },
   "homepage": "https://github.com/mavrorivero/react-roomiebot-ros#readme",
-  "dependencies": {}
+  "devDependencies": {
+    "roslib": "^1.1.0",
+    "@babel/cli": "^7.13.10",
+    "@babel/core": "^7.13.10",
+    "@babel/plugin-proposal-class-properties": "^7.13.0",
+    "@babel/plugin-syntax-class-properties": "^7.12.13",
+    "@babel/preset-env": "^7.13.10",
+    "@babel/preset-es2015": "^7.0.0-beta.53"
+  }
 }
