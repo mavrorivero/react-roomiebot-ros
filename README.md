@@ -6,17 +6,17 @@ Publishers:
 Services:
 Best Practices:
 # Tutorial
-npx create-react-app ros-test
+	npx create-react-app ros-test
 
-$npm install --save roslib
+	$npm install --save roslib
 
-$npm install --save react-roomiebot-ros
+	$npm install --save react-roomiebot-ros
 
-$npm install --save react-router-dom
+	$npm install --save react-router-dom
 
-$npm install --save history
+	$npm install --save history
 
-$npm start
+	$npm start
 
 Go to **index.js**
 and write this code:
@@ -416,4 +416,85 @@ Then create three files: **Home.jsx**, **Home-context.jsx**, and **HomeNode.jsx*
 	}
 	export default Home;
 
+## Testing code:
 
+Now that you are ready to test your front end react app with ROS; lets start rosbidge server and test th topics publishing and subscribing:
+
+	$roslaunch rosbridge_server rosbridge_websocket.launch 
+
+Try to send something to yoour front with this command:
+
+	$rostopic pub -1 /yyy std_msgs/String "data: 'roomiebotRos'"
+
+Now Use the click Button in the app to send something over /zzz topic, you can listen to it with:
+
+	$rostopic echo /zzz
+
+## Using services:
+
+Next step is to use the services with the React App. Lets add this code in the render method in **Home.js**:
+
+ 	....
+	 <form onSubmit={this.handleSubmit}>        
+        <label>
+          A:
+        <input type="text" name ="a" onChange={this.handleChangeA} /> 
+        </label>
+        <label>
+          B:
+        <input type="text" name ="b" onChange={this.handleChangeB} /> 
+        </label>
+        <input type="submit" value="Submit" />
+      </form>
+      Suma: 
+      {this.state.attributes.sum}
+	...
+
+Here we added three functions to handle the events, handleChangeA and handleChangeB, there, we will send the value from the textbox to the context attributes a and b:
+
+	handleChangeA = (event) =>{
+      let form = event.target.value;
+      this.state.attributes.a= parseInt(form)
+      console.log('handleChange: ',form)
+      this.setState(status)
+    }
+    handleChangeB = (event) =>{
+    let form = event.target.value;
+    this.state.attributes.b= parseInt(form)
+    console.log('handleChange: ',form)
+    this.setState(status)
+    }
+
+Now, the third function added, was the handleOnsubmit function, in which we are going to call the classic AddtwoInts service from the ros tutorials:
+
+	...
+	handleSubmit = (event) =>{
+      alert('A name was submitted: ' + this.state.attributes.a+ '+'+ this.state.attributes.b);
+      let request = new ROSLIB.ServiceRequest({
+        a : this.state.attributes.a,
+        b : this.state.attributes.b
+      });
+      this.state.rbotRos.tryCallService('/add_two_ints',request,
+      (response)=>{
+        console.log('response', response.sum);
+        this.state.attributes.sum= response.sum 
+        }
+        );
+      event.preventDefault();
+      this.setState(status)
+    }
+	...
+
+And in the **HomeNode.jsx** script lets add the NewService declaration of the service:
+
+		...
+        ////////        SERVICES                              ////////
+        ////////////////////////////////////////////////////////////////
+        this.state.rbotRos.newService('/add_two_ints', 'rospy_tutorials/AddTwoInts');
+		...
+
+So now you have two textboxes where you must write integer values and when you Click on the Submit button it will call the rosservice, assign the response to the status.attributes.sum var in the home-context and render this value just below the textboxes.
+
+Oh, I forgot, you havent launch the AddTwoInts Server in ROS, just type this:
+
+	$rosrun rospy_tutorials add_two_ints_server
