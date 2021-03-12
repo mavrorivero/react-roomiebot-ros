@@ -1,7 +1,6 @@
 {
   "name": "react-roomiebot-ros",
-
-  "version": "1.1.8",
+  "version": "1.1.9",
   "description": "react roomiebot ros",
   "main": "index.js",
   "scripts": {
@@ -20,7 +19,6 @@
   ],
   "author": "mavrorivero <mauro.rivero@roomie-it.org>",
   "license": "MIT",
-
   "bugs": {
     "url": "https://github.com/mavrorivero/react-roomiebot-ros/issues"
   },
